@@ -22,12 +22,28 @@ The goals / steps of this project are the following:
 [image1_1]: ./examples/undistort_output_1.png "Undistorted_1"
 [image1_2]: ./examples/undistort_output_2.png "Undistorted_2"
 [image1_3]: ./examples/undistort_output_3.png "Undistorted_3"
-[image2]: ./test_images/test1.jpg "Road Transformed"
-[image3]: ./examples/binary_combo_example.jpg "Binary Example"
+[image2]: ./output_images/undistorted_example.png "Road Undistorted Transformed"
+[image3_1]: ./output_images/thre_gradient_x_y.png "threshold gradient in X and Y direction"
+[image3_2]: ./output_images/thre_gradient_mag.png "threshold gradient in magnitude"
+[image3_3]: ./output_images/thre_gradient_dir.png "threshold gradient in direction"
+[image3_4]: ./output_images/comb_thre_gradient_x_and_s_channel.png "threshold gradient in X direction + S channel threshold"
+
+
+
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
+
+[image4_1]: ./output_images/orig_warp_0.png "Warp Example 0"
+[image4_2]: ./output_images/orig_warp_1.png "Warp Example 1"
+[image4_3]: ./output_images/orig_warp_2.png "Warp Example 2"
+
 [image5]: ./examples/color_fit_lines.jpg "Fit Visual"
+[image5_1]: ./output_images/fit_poly.png "Fit result"
+
 [image6]: ./examples/example_output.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
+[image6_1]: ./output_images/final_result.png "Result with text"
+
+
+[video1]: ./project_video_output.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -67,41 +83,72 @@ The images after calibration are in "./camera_cal_undist". Original and undistor
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
 ![alt text][image2]
 
+Please check "Provide an example of a distortion-corrected image" part in example.ipynb
+
+
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
+I try to apply different basic gradient thresholds methods. Please check exmample.ipynb for more detail.
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+#### Sobel X and Sobel Y
+$$ abs\_sobelx = \sqrt{(sobel_x)^2} $$
 
-![alt text][image3]
+$$ abs\_sobely = \sqrt{(sobel_y)^2} $$
+
+![alt text][image3_1]
+
+#### Magnitude of the Gradient
+$$ abs\_sobelxy = \sqrt{(sobel_x)^2 + (sobel_y)^2}$$
+
+![alt text][image3_2]
+
+### Direction of the Gradient
+$$ arctan(sobel_y/sobel_x). $$
+
+![alt text][image3_3]
+
+### Combine Color and Gradient
+```python
+combined_binary[(s_binary == 1) | (gradx == 1)] = 1
+```
+
+![alt text][image3_4]
+
+
+
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.ipynb` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
 
 ```python
 src = np.float32(
-    [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
-    [((img_size[0] / 6) - 10), img_size[1]],
-    [(img_size[0] * 5 / 6) + 60, img_size[1]],
-    [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
+[[(img_size[0] / 2) - 60, img_size[1] / 2 + 100],
+[((img_size[0] / 6) - 10), img_size[1]],
+[(img_size[0] * 5 / 6) + 53, img_size[1]],
+[(img_size[0] / 2 + 61), img_size[1] / 2 + 100]])
+    
 dst = np.float32(
-    [[(img_size[0] / 4), 0],
-    [(img_size[0] / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), 0]])
+[[(img_size[0] / 4), 0],
+[(img_size[0] / 4), img_size[1]],
+[(img_size[0] * 3 / 4), img_size[1]],
+[(img_size[0] * 3 / 4), 0]])
 ```
 
 This resulted in the following source and destination points:
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
-| 585, 460      | 320, 0        | 
+| 580, 460      | 320, 0        | 
 | 203, 720      | 320, 720      |
-| 1127, 720     | 960, 720      |
-| 695, 460      | 960, 0        |
+| 1119, 720     | 960, 720      |
+| 701, 460      | 960, 0        |
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
-![alt text][image4]
+![alt text][image4_1]
+![alt text][image4_2]
+![alt text][image4_3]
+
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
@@ -109,15 +156,30 @@ Then I did some other stuff and fit my lane lines with a 2nd order polynomial ki
 
 ![alt text][image5]
 
+It resuse the sample code provided in the courses. Please see " Implement Sliding Windows and Fit a Polynomial" in example.ipynb.
+
+![alt text][image5_1]
+
+
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+I did this in 'Curvature calculation' in my code in `example.ipynb`
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+I implemented this step in 
+```python
+def process_image(image):
+```
+in `example.ipynb`
 
-![alt text][image6]
+Here is an example of my result on a test image:
+
+
+
+
+
+![alt text][image6_1]
 
 ---
 
@@ -125,7 +187,9 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to original video](./project_video.mp4)
+
+Here's a [link to my video result](./project_video_output.mp4)
 
 ---
 
