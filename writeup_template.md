@@ -42,6 +42,13 @@ The goals / steps of this project are the following:
 [image6]: ./examples/example_output.jpg "Output"
 [image6_1]: ./output_images/final_result.png "Result with text"
 
+[image7_1]: ./failed_test_images/failed.jpg "Failed images 0"
+[image7_2]: ./failed_test_images/failed_2.jpg "Failed images 1"
+[image7_3]: ./failed_test_images/failed3.jpg "Failed images 2"
+
+[image8_1]: ./output_images/sanity_work.png "Sanity work"
+
+
 
 [video1]: ./project_video_output.mp4 "Video"
 
@@ -168,6 +175,7 @@ I did this in 'Curvature calculation' in my code in `example.ipynb`
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
 I implemented this step in 
+
 ```python
 def process_image(image):
 ```
@@ -197,4 +205,36 @@ Here's a [link to my video result](./project_video_output.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+I apply the sample technique provided in the course. I debug by adding
+
+```python
+#plt.imshow(result)
+#plt.show()
+```
+in `def process_image(image):`
+
+When the curvature and the offset looks reasonable, I start to dump the processed video. Then I eyeball check the video to get the frame with wrongly identified lanes. I save them into `../failed_test_images`
+
+Some sameple images that my pipeline failed to identify the lanes
+![alt text][image7_1]
+![alt text][image7_2]
+![alt text][image7_3]
+
+Then I finetune the threshold and combined sobel feature to check my pipeline can identify the lanes correctly.
+
+I also add sanity check function to discard the fitted lane changed so rapidly. `THRESHOLD` is set to `100000`. 
+
+`def sane_lane(left_fitx, right_fitx):`
+
+When sanity check fail, the messages will be added on the frame.
+
+Here is an example that rignt lane is using previous fitted parameter.
+
+`@0:42s in project_video_output.mp4`
+![alt text][image8_1]
+
+We can observe that even I fine tune the paramter try to overcome the complex situation with lots of tree's shadow. Santy check is still failed at some frame. I try to run the pipeline on `challenge_video.mp4`,  `challenge_video_output.mp4` shows that my pipeline is not robust enough. 
+
+
+
+
